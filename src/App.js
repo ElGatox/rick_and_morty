@@ -1,25 +1,73 @@
-import logo from './logo.svg';
-import './App.css';
+import Cards from './components/Cards/Cards.jsx';
+import { useState } from 'react';
+import Nav from './components/Nav/Nav';
+import { Routes, Route, useLocation, useNavigate} from "react-router-dom"
+import Detail from "./components/Detail/Detail.jsx"
+import About from './components/About/About.jsx';
+import Form from './components/Form/Form.jsx';
+import { useEffect } from 'react';
+
+
+
+
+
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+   const location = useLocation();
+ 
+   const onSearch = (id) => {
+      fetch(`https://rickandmortyapi.com/api/character/${id}`)
+      .then(response => response.json())
+      .then(data => {
+         if (data.name) {
+            setCharacters((oldChars) => [...oldChars, data]);
+         } else {
+            window.alert('¡No hay personajes con este ID!');
+         }
+      })
+      
+   }
+   const [characters,setCharacters] = useState([]);
+   const [access, setAcces] = useState(false)
+   const username = "prueba@gmail.com"
+   const password = "123asd"
+   const navigate = useNavigate()
+   useEffect (()=> {
+      !access && navigate("/")
+   }, [access])
+
+   function login(userData) {
+      if (userData.username === username && userData.password === password)
+         setAcces(true);
+      navigate("/home");
+   } 
+ 
+  
+   const onClose = (id) => {
+      setCharacters(characters.filter((char)=>char.id !== id))
+
+   }
+   return (
+     
+      
+      <div className='App'>
+         <div>
+         {location.pathname !== "/" && <Nav onSearch={onSearch} />}
+         </div>
+         <hr/>
+          <Routes>
+            <Route path="/" element={<Form login={login} />}/>
+            <Route path="home" element={<Cards characters={characters}  onClose={onClose}/>}/>
+            <Route path="/detail/:id" element={<Detail />}>
+            </Route>
+            <Route path="about" element={<About />} />
+        
+         </Routes>
+      </div>
+      
+       
+   );
 }
+
 
 export default App;
